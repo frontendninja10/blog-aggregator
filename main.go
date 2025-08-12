@@ -1,15 +1,19 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
 	"github.com/frontendninja10/blog-aggregator/internal/config"
+	"github.com/frontendninja10/blog-aggregator/internal/database"
+	_ "github.com/lib/pq"
 )
 
 type state struct {
 	cfg *config.Config
+	db *database.Queries
 }
 
 func main() {
@@ -18,14 +22,23 @@ func main() {
 		fmt.Println(err)
 	}
 
+	db, err := sql.Open("postgres", cfg.DBUrl)
+	if err != nil {
+		log.Fatal("Error connecting to database")
+	}
+
+	dbQueries := database.New(db)
+
 	appState := &state{
 		cfg: &cfg,
+		db: dbQueries,
 	}
 
 	cmds := commands{
 		registeredCommands: make(map[string]func(s *state, cmd command) error),
 	}
 	cmds.register("login", loginHandler)
+	cmds.register("register", registerHandler)
 
 	if len(os.Args) < 2 {
 		fmt.Println(os.Args)
