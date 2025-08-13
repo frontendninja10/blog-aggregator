@@ -47,12 +47,12 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
-const deleteAll = `-- name: DeleteAll :exec
-DROP TABLE users
+const deleteUsers = `-- name: DeleteUsers :exec
+DELETE FROM users
 `
 
-func (q *Queries) DeleteAll(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, deleteAll)
+func (q *Queries) DeleteUsers(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteUsers)
 	return err
 }
 

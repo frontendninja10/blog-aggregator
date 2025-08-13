@@ -12,5 +12,5 @@ RETURNING *;
 SELECT * FROM users
 WHERE name = $1;
 
--- name: DeleteAll :exec
-DROP TABLE users;
+-- name: DeleteUsers :exec
+DELETE FROM users;

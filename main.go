@@ -39,6 +39,7 @@ func main() {
 	}
 	cmds.register("login", loginHandler)
 	cmds.register("register", registerHandler)
+	cmds.register("reset", resetHandler)
 
 	if len(os.Args) < 2 {
 		fmt.Println(os.Args)
