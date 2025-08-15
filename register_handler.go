@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -14,7 +13,7 @@ import (
 
 func registerHandler(s *state, cmd command) error {
 	if len(cmd.args) == 0 {
-		return errors.New("you must pass in a name to register")
+		return fmt.Errorf("usage: %v <name>", cmd.name)
 	}
 
 	ctx := context.Background()
@@ -32,8 +31,8 @@ func registerHandler(s *state, cmd command) error {
 
 	userArgs := database.CreateUserParams{
 		ID: uuid.New(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
 		Name: username,
 	}
 

@@ -3,14 +3,13 @@ package main
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"os"
 )
 
 func loginHandler(s *state, cmd command) error {
 	if len(cmd.args) == 0 {
-		return errors.New("a username is required")
+		return fmt.Errorf("usage: %v <name>", cmd.name)
 	}
 	
 	ctx := context.Background()
