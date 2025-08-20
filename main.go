@@ -41,6 +41,7 @@ func main() {
 	cmds.register("register", registerHandler)
 	cmds.register("reset", resetHandler)
 	cmds.register("users", getUsers)
+	cmds.register("agg", agg)
 
 	if len(os.Args) < 2 {
 		fmt.Println(os.Args)
