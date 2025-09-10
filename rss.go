@@ -51,6 +51,9 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 
 	var rssFeedRes RSSFeed
 	err = xml.Unmarshal(data, &rssFeedRes)
+	if err != nil {
+        return nil, fmt.Errorf("error unmarshalling response: %w", err)
+    }
 
 	rssFeedRes.Channel.Title = html.UnescapeString(rssFeedRes.Channel.Title)
 	rssFeedRes.Channel.Description = html.UnescapeString(rssFeedRes.Channel.Description)
@@ -59,11 +62,6 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 		rssFeedRes.Channel.Item[i].Title = html.UnescapeString(item.Title)
 		rssFeedRes.Channel.Item[i].Description = html.UnescapeString(item.Description)
 	}
-
-	if err != nil {
-        return nil, fmt.Errorf("error unmarshalling response: %w", err)
-    }
-
 
 	return &rssFeedRes, nil
 }

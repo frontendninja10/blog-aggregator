@@ -18,6 +18,6 @@ func agg(s *state, cmd command) error {
 		return fmt.Errorf("error fetching feed")
 	}
 
-	fmt.Println(feed)
+	fmt.Printf("Feed: %+v\n", feed)
 	return nil
 }

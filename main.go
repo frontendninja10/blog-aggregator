@@ -42,6 +42,11 @@ func main() {
 	cmds.register("reset", resetHandler)
 	cmds.register("users", getUsers)
 	cmds.register("agg", agg)
+	cmds.register("addfeed", middlewareLoggedIn(addFeedHandler))
+	cmds.register("feeds", getFeeds)
+	cmds.register("follow", middlewareLoggedIn(followHandler))
+	cmds.register("unfollow", middlewareLoggedIn(unfollowHandler))
+	cmds.register("following", middlewareLoggedIn(listFeedFollowsHandler))
 
 	if len(os.Args) < 2 {
 		fmt.Println(os.Args)
