@@ -1,22 +1,24 @@
-package main
+package auth
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
 	"os"
+
+	"github.com/frontendninja10/blog-aggregator/internal/app"
 )
 
-func loginHandler(s *state, cmd command) error {
-	if len(cmd.args) == 0 {
-		return fmt.Errorf("usage: %v <name>", cmd.name)
+func Login(s *app.State, cmd app.Command) error {
+	if len(cmd.Args) == 0 {
+		return fmt.Errorf("usage: %v <name>", cmd.Name)
 	}
 	
 	ctx := context.Background()
 
-	username := cmd.args[0]
+	username := cmd.Args[0]
 
-	_, err := s.db.GetUser(ctx, username)
+	_, err := s.DB.GetUser(ctx, username)
 	if err != nil && err != sql.ErrNoRows {
 		return fmt.Errorf("failed to check user existence: %w", err)
 	}
@@ -25,12 +27,12 @@ func loginHandler(s *state, cmd command) error {
 		os.Exit(1)
 	}
 
-	if s.cfg.CurrentUsername == username {
+	if s.Config.CurrentUsername == username {
 		fmt.Fprintln(os.Stderr, "user already logged in")
 		os.Exit(1)
 	}
 
-	if err := s.cfg.SetUser(username); err != nil {
+	if err := s.Config.SetUser(username); err != nil {
 		return err
 	}
 

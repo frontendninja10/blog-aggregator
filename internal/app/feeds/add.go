@@ -1,17 +1,18 @@
-package main
+package feeds
 
 import (
 	"context"
 	"fmt"
 	"time"
 
+	"github.com/frontendninja10/blog-aggregator/internal/app"
 	"github.com/frontendninja10/blog-aggregator/internal/database"
 	"github.com/google/uuid"
 )
 
-func addFeedHandler(s *state, cmd command, user database.User) error {
-	if len(cmd.args) != 2 {
-		return fmt.Errorf("usage: %v <name> <url>", cmd.name)
+func AddFeed(s *app.State, cmd app.Command, user database.User) error {
+	if len(cmd.Args) != 2 {
+		return fmt.Errorf("usage: %v <name> <url>", cmd.Name)
 	}
 
 	ctx := context.Background()
@@ -20,12 +21,12 @@ func addFeedHandler(s *state, cmd command, user database.User) error {
 		ID: uuid.New(),
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
-		Name: cmd.args[0],
-		Url: cmd.args[1],
+		Name: cmd.Args[0],
+		Url: cmd.Args[1],
 		UserID: user.ID,
 	}
 
-	feed, err := s.db.CreateFeed(ctx, feedParams)
+	feed, err := s.DB.CreateFeed(ctx, feedParams)
 	if err != nil {
 		return fmt.Errorf("error creating feed: %w", err)
 	}
@@ -38,7 +39,7 @@ func addFeedHandler(s *state, cmd command, user database.User) error {
 		FeedID: feed.ID,
 	}
 
-	_, err = s.db.CreateFeedFollow(ctx, createFeedFollow)
+	_, err = s.DB.CreateFeedFollow(ctx, createFeedFollow)
 	if err != nil {
 		return fmt.Errorf("error creating feed follow: %w", err)
 	}

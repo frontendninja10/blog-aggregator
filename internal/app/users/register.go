@@ -1,4 +1,4 @@
-package main
+package users
 
 import (
 	"context"
@@ -7,20 +7,21 @@ import (
 	"os"
 	"time"
 
+	"github.com/frontendninja10/blog-aggregator/internal/app"
 	"github.com/frontendninja10/blog-aggregator/internal/database"
 	"github.com/google/uuid"
 )
 
-func registerHandler(s *state, cmd command) error {
-	if len(cmd.args) == 0 {
-		return fmt.Errorf("usage: %v <name>", cmd.name)
+func Register(s *app.State, cmd app.Command) error {
+	if len(cmd.Args) == 0 {
+		return fmt.Errorf("usage: %v <name>", cmd.Name)
 	}
 
 	ctx := context.Background()
 
-	username := cmd.args[0]
+	username := cmd.Args[0]
 
-	_, err := s.db.GetUser(ctx, username)
+	_, err := s.DB.GetUser(ctx, username)
 	if err != nil && err != sql.ErrNoRows {
 		return fmt.Errorf("failed to check user existence: %w", err)
 	}
@@ -36,12 +37,12 @@ func registerHandler(s *state, cmd command) error {
 		Name: username,
 	}
 
-	user, err := s.db.CreateUser(ctx, userArgs)
+	user, err := s.DB.CreateUser(ctx, userArgs)
 	if err != nil {
 		return fmt.Errorf("failed to create user: %w", err)
 	}
 
-	if err = s.cfg.SetUser(user.Name); err != nil {
+	if err = s.Config.SetUser(user.Name); err != nil {
 		return err
 	}
 
