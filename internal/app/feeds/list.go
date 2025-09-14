@@ -1,14 +1,16 @@
-package main
+package feeds
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/frontendninja10/blog-aggregator/internal/app"
 )
 
-func getFeeds(s *state, cmd command) error {
+func ListFeeds(s *app.State, cmd app.Command) error {
 	ctx := context.Background()
 
-	feeds, err := s.db.GetFeeds(ctx)
+	feeds, err := s.DB.GetFeeds(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to fetch feeds: %w", err)
 	}
