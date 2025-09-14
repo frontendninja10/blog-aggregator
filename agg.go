@@ -1,23 +1,26 @@
 package main
 
 import (
-	"context"
 	"fmt"
+	"log"
+	"time"
 )
 
 func agg(s *state, cmd command) error {
-	if len(cmd.args) == 0 {
-		return fmt.Errorf("usage: %v <name>", cmd.name)
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("usage: %v <time_between_reqs>", cmd.name)
 	}
 
-	ctx := context.Background()
-
-
-	feed, err := fetchFeed(ctx, cmd.args[0])
+	timeBetweenRequests, err := time.ParseDuration(cmd.args[0])
 	if err != nil {
-		return fmt.Errorf("error fetching feed")
+		return fmt.Errorf("%w", err)
 	}
 
-	fmt.Printf("Feed: %+v\n", feed)
-	return nil
+	log.Printf("Collecting feeds every %v", timeBetweenRequests)
+
+	ticker := time.NewTicker(timeBetweenRequests)
+
+	for ; ; <-ticker.C {
+		scrapeFeeds(s)
+	}
 }
