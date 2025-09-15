@@ -7,11 +7,12 @@ import (
 	"time"
 
 	"github.com/frontendninja10/blog-aggregator/internal/app"
+	"github.com/frontendninja10/blog-aggregator/internal/database"
 	"github.com/frontendninja10/blog-aggregator/pkg/rss"
 )
 
-func scrapeFeeds(s *app.State) {
-	feed, err := s.DB.GetNextFeedToFetch(context.Background())
+func scrapeFeeds(s *app.State, user database.User) {
+	feed, err := s.DB.GetNextFollowedFeedToFetch(context.Background(), user.ID)
 	if err != nil {
 		log.Println("Couldn't get next feeds to fetch", err)
 		return
@@ -35,7 +36,7 @@ func scrapeFeeds(s *app.State) {
 	fmt.Println("==============================================================")
 }
 
-func AggregateFeeds(s *app.State, cmd app.Command) error {
+func AggregateFeeds(s *app.State, cmd app.Command, user database.User) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("usage: %v <time_between_reqs>", cmd.Name)
 	}
@@ -50,6 +51,6 @@ func AggregateFeeds(s *app.State, cmd app.Command) error {
 	ticker := time.NewTicker(timeBetweenRequests)
 
 	for ; ; <-ticker.C {
-		scrapeFeeds(s)
+		scrapeFeeds(s, user)
 	}
 }

@@ -30,3 +30,9 @@ RETURNING *;
 SELECT * FROM feeds
 ORDER BY last_fetched_at ASC NULLS FIRST
 LIMIT 1;
+
+-- name: GetNextFollowedFeedToFetch :one
+SELECT * FROM feeds
+WHERE user_id IN (SELECT feed_follows.user_id FROM feed_follows WHERE feed_follows.user_id = $1)
+ORDER BY last_fetched_at ASC NULLS FIRST
+LIMIT 1;

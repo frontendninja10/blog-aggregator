@@ -148,6 +148,28 @@ func (q *Queries) GetNextFeedToFetch(ctx context.Context) (Feed, error) {
 	return i, err
 }
 
+const getNextFollowedFeedToFetch = `-- name: GetNextFollowedFeedToFetch :one
+SELECT id, created_at, updated_at, name, url, user_id, last_fetched_at FROM feeds
+WHERE user_id IN (SELECT feed_follows.user_id FROM feed_follows WHERE feed_follows.user_id = $1)
+ORDER BY last_fetched_at ASC NULLS FIRST
+LIMIT 1
+`
+
+func (q *Queries) GetNextFollowedFeedToFetch(ctx context.Context, userID uuid.UUID) (Feed, error) {
+	row := q.db.QueryRowContext(ctx, getNextFollowedFeedToFetch, userID)
+	var i Feed
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+		&i.Url,
+		&i.UserID,
+		&i.LastFetchedAt,
+	)
+	return i, err
+}
+
 const markFeedFetched = `-- name: MarkFeedFetched :one
 UPDATE feeds
 SET updated_at = NOW(), last_fetched_at = NOW()

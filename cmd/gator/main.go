@@ -48,7 +48,7 @@ func main() {
 	cmds.Register("register", users.Register)
 	cmds.Register("reset", users.Reset)
 	cmds.Register("users", users.ListUsers)
-	cmds.Register("aggregate", feeds.AggregateFeeds)
+	cmds.Register("aggregate", middlewareLoggedIn(feeds.AggregateFeeds))
 	cmds.Register("feeds", feeds.ListFeeds)
 	cmds.Register("addfeed", middlewareLoggedIn(feeds.AddFeed))
 	cmds.Register("follow", middlewareLoggedIn(feeds.Follow))
