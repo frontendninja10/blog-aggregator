@@ -74,7 +74,7 @@ go run . reset
 
 #### Fetch RSS feed
 ```bash
-go run . agg <feed_url>
+gator . agg <feed_url>
 ```
 Fetch and display RSS feed content from the specified URL.
 

@@ -9,6 +9,7 @@ import (
 	"github.com/frontendninja10/blog-aggregator/internal/app"
 	"github.com/frontendninja10/blog-aggregator/internal/database"
 	"github.com/frontendninja10/blog-aggregator/pkg/rss"
+	"github.com/google/uuid"
 )
 
 func scrapeFeeds(s *app.State, user database.User) {
@@ -31,6 +32,16 @@ func scrapeFeeds(s *app.State, user database.User) {
 
 	for _, item := range fetchedFeed.Channel.Item {
 		fmt.Printf("Found post: %s\n", item.Title)
+		postArgs := database.CreatePostParams{
+			ID: uuid.New(),
+			CreatedAt: time.Now().UTC(),
+			UpdatedAt: time.Now().UTC(),
+			Title: item.Link,
+			Description: item.Description,
+			PublishedAt: item.PubDate,
+			FeedID: feed.ID,
+		}
+		post, err := s.DB.CreatePost(context.Background(), postArgs)
 	}
 	log.Printf("Feed %s collected, %v posts found", feed.Name, len(fetchedFeed.Channel.Item))
 	fmt.Println("==============================================================")
