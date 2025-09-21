@@ -2,6 +2,7 @@ package feeds
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -31,17 +32,31 @@ func scrapeFeeds(s *app.State, user database.User) {
 	}
 
 	for _, item := range fetchedFeed.Channel.Item {
-		fmt.Printf("Found post: %s\n", item.Title)
+		publishedAt := sql.NullTime{}
+		if t, err := time.Parse(time.RFC1123, item.PubDate); err == nil {
+			publishedAt = sql.NullTime{
+				Time: t,
+				Valid: true,
+			}
+		}
 		postArgs := database.CreatePostParams{
 			ID: uuid.New(),
 			CreatedAt: time.Now().UTC(),
 			UpdatedAt: time.Now().UTC(),
 			Title: item.Link,
-			Description: item.Description,
-			PublishedAt: item.PubDate,
+			Description: sql.NullString{
+				String: item.Description,
+				Valid: true,
+			},
+			PublishedAt: publishedAt,
 			FeedID: feed.ID,
+			Url: item.Link,
 		}
-		post, err := s.DB.CreatePost(context.Background(), postArgs)
+		_, err := s.DB.CreatePost(context.Background(), postArgs)
+
+		if err != nil {
+			log.Printf("couldn't create post: %v", err)
+		}
 	}
 	log.Printf("Feed %s collected, %v posts found", feed.Name, len(fetchedFeed.Channel.Item))
 	fmt.Println("==============================================================")

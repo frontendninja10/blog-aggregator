@@ -54,6 +54,7 @@ func main() {
 	cmds.Register("follow", middlewareLoggedIn(feeds.Follow))
 	cmds.Register("unfollow", middlewareLoggedIn(feeds.Unfollow))
 	cmds.Register("following", middlewareLoggedIn(feeds.Following))
+	cmds.Register("browse", middlewareLoggedIn(feeds.Browse))
 
 	if len(os.Args) < 2 {
 		fmt.Println(os.Args)

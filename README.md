@@ -14,151 +14,58 @@ A command-line RSS feed aggregator built in Go that allows users to manage RSS f
 
 - Go 1.24.4 or later
 - PostgreSQL database
-- [SQLC](https://sqlc.dev/) for database code generation (development)
 
 ## Installation
 
-1. Clone the repository:
+Make sure you have the latest [Go toolchain](https://golang.org/dl/) installed as well as a local Postgres database. You can then install `gator` with:
+
 ```bash
-git clone https://github.com/frontendninja10/blog-aggregator.git
-cd blog-aggregator
-```
-
-2. Install dependencies:
-```bash
-go mod download
-```
-
-3. Set up your PostgreSQL database and create a configuration file:
-```bash
-# Create configuration file in your home directory
-echo '{"db_url": "postgres://username:password@localhost/dbname?sslmode=disable", "current_username": ""}' > ~/.gatorconfig.json
-```
-
-4. Run database migrations:
-```bash
-# Apply the schema from sql/schema/001_users.sql to your database
-```
-
-## Usage
-
-The application provides several commands for managing users and fetching RSS feeds:
-
-### User Management
-
-#### Register a new user
-```bash
-go run . register <username>
-```
-Creates a new user and automatically logs them in.
-
-#### Login as an existing user
-```bash
-go run . login <username>
-```
-Switch to an existing user account.
-
-#### List all users
-```bash
-go run . users
-```
-Display all registered users, with the current user marked with an asterisk.
-
-#### Reset database
-```bash
-go run . reset
-```
-⚠️ **Warning**: This deletes all users from the database.
-
-### RSS Feed Operations
-
-#### Fetch RSS feed
-```bash
-gator . agg <feed_url>
-```
-Fetch and display RSS feed content from the specified URL.
-
-Example:
-```bash
-go run . agg https://blog.boot.dev/index.xml
-```
-
-## Project Structure
-
-```
-blog-aggregator/
-├── main.go                 # Application entry point
-├── commands.go             # Command registration and routing
-├── register_handler.go     # User registration logic
-├── login_handler.go        # User login logic
-├── users_handler.go        # List users functionality
-├── reset_handler.go        # Database reset functionality
-├── agg.go                  # RSS feed aggregation
-├── rss.go                  # RSS parsing utilities
-├── internal/
-│   ├── config/             # Configuration management
-│   └── database/           # Generated database code (SQLC)
-├── sql/
-│   ├── queries/            # SQL queries for SQLC
-│   └── schema/             # Database schema migrations
-├── go.mod                  # Go module definition
-├── go.sum                  # Go module checksums
-└── sqlc.yaml              # SQLC configuration
+go install github.com/frontendninja10/blog-aggregator/cmd/gator@latest
 ```
 
 ## Configuration
 
-The application uses a JSON configuration file stored at `~/.gatorconfig.json`:
-
-```json
-{
-  "db_url": "postgres://username:password@localhost/dbname?sslmode=disable",
-  "current_username": "your_username"
-}
-```
-
-- `db_url`: PostgreSQL connection string
-- `current_username`: Currently logged-in user (managed automatically)
-
-## Database Schema
-
-The application uses a simple user table:
-
-```sql
-CREATE TABLE users (
-    id UUID PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
-    name TEXT UNIQUE NOT NULL
-);
-```
-
-## Development
-
-### Database Code Generation
-
-This project uses [SQLC](https://sqlc.dev/) to generate type-safe Go code from SQL queries:
-
+Set up your PostgreSQL database and create a configuration file:
 ```bash
-# Install SQLC
-go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
-
-# Generate database code
-sqlc generate
+# Create configuration file in your home directory
+echo '{"db_url": "postgres://username:password@localhost/dbname?sslmode=disable"}' > ~/.gatorconfig.json
 ```
 
-### Adding New Commands
+Replace `username`, `password`, and `dbname` with your PostgreSQL credentials and database name.
 
-1. Create a handler function with the signature: `func(s *state, cmd command) error`
-2. Register the command in `main.go`:
-```go
-cmds.register("your_command", yourHandler)
+## Usage
+
+The application provides several commands for managing users and RSS feeds:
+
+Create a new user:
+```bash
+gator register <username>
 ```
 
-## Dependencies
+Add a feed:
+```bash
+gator addfeed <feed_name> <feed_url>
+```
 
-- [github.com/lib/pq](https://github.com/lib/pq) - PostgreSQL driver
-- [github.com/google/uuid](https://github.com/google/uuid) - UUID generation
+Start aggregating feeds:
+```bash
+gator aggregate <time_between_requests>
+```
+Time between requests is in the format of `1s`, `1m`, `1h`, etc.
+
+View the posts:
+```bash
+gator browse [limit]
+```
+
+Other commands you might need:
+- `gator login <username>`: Login as an existing user
+- `gator users`: List all users
+- `gator reset`: Reset the database (deletes all users)
+- `gator feeds`: List all feeds
+- `gator follow <feed_url>`: Follow an existing feed
+- `gator unfollow <feed_url>`: Unfollow an existing feed
+- `gator following`: List all followed feeds
 
 ## Contributing
 
@@ -180,18 +87,6 @@ This project is open source. Please check the repository for license details.
 
 2. **User already exists**: The register command will fail if you try to create a user that already exists.
 
-3. **Configuration file not found**: Make sure `~/.gatorconfig.json` exists with valid database credentials.
+3. **Configuration file not found**: Make sure `~/.gatorconfig.json` exists in your home directory with valid database credentials.
 
 4. **RSS feed parsing errors**: Some feeds may have non-standard formats. The application includes HTML unescaping for better compatibility.
-
-## Examples
-
-```bash
-# Complete workflow example
-go run . register alice          # Register user 'alice'
-go run . users                   # List users (alice will be marked as current)
-go run . agg https://example.com/feed.xml  # Fetch RSS feed
-go run . register bob            # Register another user 'bob'
-go run . login alice             # Switch back to alice
-go run . users                   # List users (alice marked as current)
-```
